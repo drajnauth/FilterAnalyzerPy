@@ -1,0 +1,46 @@
+======================================================
+         COHN FILTER ANALYZER - HELP FILE
+======================================================
+
+OVERVIEW:
+The Cohn Filter Analyzer is a professional-grade RF simulation tool 
+designed specifically for evaluating and optimizing 4-pole crystal 
+ladder filters for Single Sideband (SSB) transceivers. 
+
+Unlike basic calculators that assume all crystals are identical, this 
+tool processes the individual motional parameters (Butterworth-Van Dyke 
+models) of 4 real-world crystals using rigorous ABCD matrix cascading. 
+This allows you to accurately predict insertion loss, passband ripple, 
+carrier suppression, and audio fidelity before soldering any components.
+
+------------------------------------------------------
+INPUT FIELD DESCRIPTIONS
+------------------------------------------------------
+
+CIRCUIT PARAMETERS
+- Capacitors (C1 - C5): The coupling capacitors in picofarads (pF). 
+  In a standard Cohn topology, all 5 capacitors are typically identical.
+  In a Dishal design, the end caps (C1, C2) will differ from the inner caps.
+- Motional Cap (Cm): The motional capacitance of the crystal in femtofarads (fF).
+- Motional Ind (Lm): The motional inductance of the crystal in millihenries (mH).
+- Motional Res (Rm): The Equivalent Series Resistance (ESR) in Ohms.
+- Case Cap (Cc): The physical shunt capacitance of the crystal holder in pF.
+
+OPTIMIZATION CONSTRAINTS
+These fields dictate what the algorithm considers an "acceptable" filter 
+when searching for the optimal Termination Impedance.
+- Max IL (dB): The maximum acceptable signal loss through the filter. 
+- Max Ripple (dB): The maximum acceptable peak-to-peak variance in the passband.
+- Skirt Target (dB): The depth on the skirt used to calculate the Shape Factor. 
+  (e.g., entering 40 means the algorithm optimizes for the steepest drop to -40dB).
+
+DISHAL/HAYWARD SYNTHESIS
+- Target Freq (MHz): The desired center frequency of your filter.
+- Target BW (Hz): Your desired -3dB bandwidth (typically 2400 to 2700 for SSB).
+
+ANALYSIS SETUP
+- Sweep Start/End: The frequency bounds for the plotting engine (in MHz).
+- Z Term Real: The resistive termination impedance applied to the filter's input/output.
+- BFO Offset (Hz): The distance your Beat Frequency Oscillator is placed away 
+  from the -3dB edge of the filter. Used to calculate Carrier Suppression and Audio Fidelity.
+  
