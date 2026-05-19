@@ -15,4 +15,4 @@ With this program you can:
 
 Detailed documentation at  [Documentation](docs/FilterAnalyzerDocumentation.md)
 
-Sample use of the program at [Sample Usage](FilterAnalyzerTutorial.md)
+Sample use of the program at [Sample Usage](docs/FilterAnalyzerTutorial.md)
