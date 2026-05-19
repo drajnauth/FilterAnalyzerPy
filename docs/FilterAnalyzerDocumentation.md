@@ -16,48 +16,52 @@ Python relies on a global library system. If you install data-science libraries 
 
 1. **Install Python:** Ensure Python 3 is installed (downloadable via the Microsoft Store).
 2. Visit the github repo (https://github.com/drajnauth/FilterAnalyzerPy) and get the FilterAnalyzerpy repo on your system. Place the code in a suitable directory. You **MUST** run the program from this directory.
-3. **Create the Environment:** Open a command prompt and navagate to the folder with the FilterAnalyzer.py software, and type:
+3. **Create the Environment:** Open a command prompt (NOT Powershell) and navagate to the folder with the FilterAnalyzer.py software, and type:
 
 ```cmd
 python -m venv .venv
 
 ```
+3. **Activate the Environment:**  From the command line (where you have navigated to the folder with FilterAnalyzer.py software) execute the following to activate the environment:
 
-3. **Activate the Environment:** \* Open the VS Code Command Palette (`Ctrl+Shift+P`).
+```
+.venv\Scripts\activate.bat
 
-- Type **Python: Select Interpreter** and select the path ending in `('.venv': venv)`.
-- Close your terminal and open a New Terminal. You should see `(.venv)` in green at the start of your command prompt.
+```
+   **Note**: This **MUST** be executed from a command prompt and not Powershell terminal window.  It you try and run this from powershell it will fail.  Using Powershell is beyond the scope of this tutorial.  Google "active .venv from powershell" for more information.
 
-4. **Install Libraries:** In that active terminal, run:
+- The command prompt should change and should see `(.venv)` at the start of your command prompt.
+
+4. **Install Libraries:** In that active terminal with the `(.venv)`  in the prompt, execute the following to install the required libraries:
 
 ```cmd
 pip install numpy matplotlib pillow
 
 ```
-
 5. Tkinter
 
-- The python program using tkinter. On Microsoft Windows, tkinter is probably installed and the software will work. If you get a tkinter error you will need to manually install tkinter on Windows. This is done by selecting a python installed that includes tkinter. Look at using python from the Microsoft Store.
+- The python program uses tkinter. On Microsoft Windows, tkinter is probably installed and the software will work. If you get a tkinter error you will need to manually install tkinter on Windows. This is done by selecting a python installed that includes tkinter. Look at using python from the Microsoft Store.
 
-- In linux, tkinter needs to be installed from the command line.
-
-```sudo apt update
-	 sudo apt install python3-tk
+- In linux, tkinter needs to be installed from the command line.  If you are using Windows ignore this step.
 ```
-
+sudo apt update
+sudo apt install python3-tk
+```
 ### Running the Program
 
-- You will first need to active the virtual environment. This is done by entering the following command within the directory with the FilterAnalyzer.py and the .venv directory.
-
+- If you have not already activated the virtual environment, You will first need to activate the virtual environment. This is done by opening a command prompt and navagate to the folder with the FilterAnalyzer.py software entering the following command:
 ```
 .venv\Scripts\activate.bat
 ```
+  **Note**: This **MUST** be executed from a command prompt and not Powershell terminal window.  It you try and run this from powershell it will fail.  Using Powershell is beyond the scope of this tutorial.  Google "active .venv from powershell" for more information.
 
 - Ensure your terminal shows the `(.venv)` prompt. Run the program by typing:
-
 ```
 python FilterAnalyzer.py
 ```
+
+**Note**: On modern versions of linux (possibly Windows), you may have the user **`python3 FilterAnalyzer.py`** instead of **`python FilterAnalyzer.py`**.
+
 
 ---
 
