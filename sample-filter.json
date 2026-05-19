@@ -1,0 +1,52 @@
+{
+    "capacitors": {
+        "C1": "100",
+        "C3": "100",
+        "C4": "120",
+        "C5": "100",
+        "C2": "100"
+    },
+    "crystals": {
+        "Y1": {
+            "cm": "22.90",
+            "lm": "7.69",
+            "rm": "8.32",
+            "cc": "4"
+        },
+        "Y2": {
+            "cm": "22.78",
+            "lm": "7.73",
+            "rm": "9.95",
+            "cc": "4"
+        },
+        "Y3": {
+            "cm": "23.89",
+            "lm": "7.37",
+            "rm": "6.02",
+            "cc": "4"
+        },
+        "Y4": {
+            "cm": "22.66",
+            "lm": "7.77",
+            "rm": "7.34",
+            "cc": "4"
+        }
+    },
+    "settings": {
+        "f_start": "0",
+        "f_end": "0",
+        "z_term": "",
+        "term_enabled": false,
+        "mode": "bode",
+        "opt_il": "10.0",
+        "opt_rip": "3.0",
+        "opt_skirt": "40.0",
+        "en_il": true,
+        "en_rip": true,
+        "en_skirt": true,
+        "syn_f0": "0",
+        "syn_bw": "0",
+        "bfo_offset": "",
+        "plot_zoom": "full"
+    }
+}

@@ -61,11 +61,50 @@ python FilterAnalyzer.py
 
 ---
 
-## 2. General Usage Workflow
+## 2. Mathematical Model
+The method we are using in the Python code is most commonly known in electrical engineering as **Two-Port Network Analysis** using **Transmission Parameters** (or **ABCD Parameters**).
+
+When applied specifically to building something like a ladder filter, engineers usually refer to the technique as the **Chain Matrix Method** or **Cascade Matrix Analysis**.
+
+Here is why those names are used and why this specific method is so powerful for filter design:
+### 1. The "Two-Port" Concept
+In this method, you stop looking at the circuit as a giant, complicated web of interconnected wires. Instead, you treat every single component as an isolated "black box" with an input (Port 1) and an output (Port 2).
+- A series capacitor gets its own box.
+- A crystal gets its own box.
+- A shunt capacitor gets its own box.
+### 2. The "Chain" or "Cascade" Multiplication
+There are many types of network matrices in RF design (like S-parameters, Z-parameters, and Y-parameters), but ABCD matrices have one unique mathematical superpower: **they cascade perfectly.**
+
+If you connect the output of Box 1 to the input of Box 2, the mathematical model for the combined system is literally just the ABCD matrix of Box 1 multiplied by the ABCD matrix of Box 2.
+
+Because a crystal ladder filter is just a long "chain" of alternating series and shunt components, the Chain Matrix Method allows a computer to calculate the total transfer function of the entire filter simply by multiplying the individual matrices from left to right. This is exactly what the `matrix_series(...) @ matrix_shunt(...)` lines in the Python code are doing!
+
+
+## 3. General Usage Workflow
+
+The program has 5 windows that are contained in boxes as well as a schematic of the filter showing capacitors and crystals.  
+1. The first window is the **Circuit Parameter** windows.  This is where you enter the values for the capacitor and crystals labelled in the circuit schematic.
+2. The next window down is the **Selectable Constraints (For Z Opt).**  This is where you can enter requirement for the filter performance.  Specifically, intertion loss, passband ripple and carrier suppression (Skirt Target)
+3. Beside this window is the **Dishal/Hayward Systhesis**.  You enter parameters that are used to optimize capacitor values.  Note that since Dishal/Hayward assumed perfectly match crystals, the program take the average of all the crystal motional parameters and used that for the calculation.  This window also has a **Synthesize Caps** button
+4. The 3rd box down is the **Analysis Setup** windows.  This is where you select what you want to analyze.  You can select frequency sweep, plot type, impedance optimization, enter termination and BFO offset. 
+5. The final windows is a text output window. This is where the program will display calculated values such as filter center frequency, bandwidth, insertion loss, ripple, carrier attenuation as well as audio passband attenuation.
 
 ### Step A: Enter Crystal Parameters
 
 Begin by characterizing your physical crystals using a SNA, VNA or an oscillator test fixture. Enter the $C_m$, $L_m$, $R_m$, and $C_c$ values for all four crystals (Y1 - Y4) in the top-left panel.
+
+ In this document all capacitors will be referred to as coupling capacitors.
+#### 1. Shunt Capacitors (The Inner Caps)
+
+The "coupling" capacitors that connect the signal path to ground between the crystals (like $C_3$, $C_4$, and $C_5$ in the program we built) are technically **shunt capacitors**, but they are almost universally referred to as **shunt coupling capacitors**.
+
+This is an accurate term because their primary job is to couple the RF energy from one crystal resonator to the next, while determining the overall bandwidth of the filter. If you call them coupling caps, every RF engineer will know exactly what you mean.
+
+#### 2. Series Capacitors (The Outer Caps)
+
+The "coupling" capacitors at the very front and back of the filter (like $C_1$ and $C_2$) sit in series with the signal path. While they are still technically coupling energy into and out of the filter, they are often given more specific names based on what they are doing:
+- **In a Cohn Filter:** Since all capacitors are identical, people usually just call the whole set "the coupling caps."
+- **In a Dishal Filter:** Because the end crystals only see a capacitor on one side, their resonant frequency shifts slightly compared to the inner crystals. The outer series capacitors are mathematically calculated to pull those end crystals back onto the correct center frequency. Therefore, these are often called **pulling capacitors**, **tuning caps**, or **matching caps**.
 
 ### Step B: Run an Open Termination Plot
 
@@ -138,13 +177,25 @@ Single Sideband (SSB) relies on a Beat Frequency Oscillator (BFO) to translate R
 
 _Note on Sideband Inversion:_ If your radio uses High-Side Injection at the mixer stage, the spectrum flips (USB physically becomes LSB). You must select your BFO offset accordingly based on your specific radio architecture.
 
-**Using the BFO Offset Tool:**
+#### BFO Background
+
+
+
+The BFO Frequency indicates the starting frequency of the audio passband and for USB the BFO Frequency + 600 Hz will be for 600 Hz audio and BFO Frequency + 2400 Hz will be for 2400 Hz audio.  For LSB, the same applies except the audio frequency is subtracted from the BFO Frequency.  If you don't understand this, use AI and take pen and paper and draw a AM modulated signal with side bands and figure it out. The carrier is usually about 300 Hz or so below/above the BFO frequency.  Carrier suppression is the attenuation (of the filter) that is 300 Hz below the BFO.
+
+This program's analysis is primary for the transmission of SSB.  For reception of SSB, the BFO Frequency can be closer to the center frequency where you get better audio quality.
+
+The text output window of the program displays (for USB and LSB), the BFO Frequency, the carrier suppression, and attenuation for audio lows (600 Hz away from the BFO frequency) and audio highs (2400 Hz away from the BFO frequency).  With sideband inversion this will be reversed and audio highs will be closer to the BFO frequency and audio lows will be further away from the BFO frequency.  Again if you don't understand this, use pen and paper and AI to figure it out.
+
+**** Using the BFO Offset Tool
 Adjust the **BFO Offset (Hz)** input to slide your carrier up and down the filter skirt.
 
 1. A larger offset (e.g., `800` Hz) pushes the carrier further down the skirt, granting excellent **Carrier Suppression** (-50 dB).
 2. However, look at the **Audio Lows (600Hz)** printout. A high offset will result in high insertion loss at 600Hz, meaning your voice will lose all its bass and sound "tinny."
 3. Adjust the offset until you find the perfect compromise between suppressing the carrier whistle and preserving your vocal fidelity.
 
+	**Note**: When  **BFO Offset**  is 0, you are telling the program to place the Beat Frequency Oscillator _exactly_ on the -3dB edge of the filter.  When you increase the **BFO Offset** the BFO slides further away from the center frequency by the amount specified.
+	
 ### Step F: Utilizing the Plot Views
 
 When in **Bode Plot |dB|** mode, use the **Plot View** radio buttons to visually verify your BFO placement.
@@ -152,7 +203,7 @@ When in **Bode Plot |dB|** mode, use the **Plot View** radio buttons to visually
 - **Full Plot:** Shows the entire filter response, demonstrating overall passband flatness and both skirts.
 - **Zoom USB / Zoom LSB:** Zooms tightly into the selected skirt. The plot draws a green/purple line where your carrier sits, and draws boundary lines at the 600 Hz (Lows) and 2400 Hz (Highs) marks. This provides instant visual confirmation that your desired audio is "fitting" safely inside the flat portion of the passband.
 
-## 3. Data Analysis
+## 4. Data Analysis
 
 The software has a text windows where various calculations will be placed.
 
@@ -166,7 +217,7 @@ The software has a text windows where various calculations will be placed.
   - Audio passband Low frequency (600 Hz) attenuation
   - Audio passband High frequency (2400 Hz) attenuation
 
-## 4. Manual Data Analysis
+## 5. Manual Data Analysis
 
 The software allows you to change parameters to see the impact on the filter. You are free to alter:
 
@@ -174,6 +225,6 @@ The software allows you to change parameters to see the impact on the filter. Yo
 - crystal motional parameters
 - Termination (applies to both sides)
 
-## 5. Save/Recall
+## 6. Save/Recall
 
 The software allows you to save all the values entered in the data fields in a json file. Select **`File->Open Profile`** or **`File->Save Profile`**.

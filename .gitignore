@@ -7,7 +7,7 @@
 *.o
 *.so
 *.code-workspace
-*.json
+#*.json
 
 # Packages #
 ############
