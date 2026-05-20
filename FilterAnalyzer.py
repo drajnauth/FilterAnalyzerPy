@@ -565,19 +565,47 @@ class CrystalAnalyzerApp:
                 plt.grid(True)
                 plt.show()
 
+            #updated 20May26 to allow real/imaginary plot of impedance
             elif mode == "z_unterm":
-                self.log("Calculating Unterminated Input Impedance")
-                Z_in = A / C
+                if self.term_enabled.get():
+                    Z0 = self.get_float(self.z_term_r, "Z Term Real")
+                    if Z0 <= 0: raise ValueError("Termination impedance must be > 0.")
+                    self.log(f"Calculating Terminated Input Impedance (Load = {Z0} Ohms)")
+                    
+                    # Full ABCD formula for a terminated network
+                    Z_in = (A * Z0 + B) / (C * Z0 + D)
+                    title_str = f"Terminated Input Impedance | Z_load = {Z0} \u03A9"
+                else:
+                    self.log("Calculating Unterminated Input Impedance (Open Load)")
+                    
+                    # Simplified ABCD formula for an open circuit
+                    Z_in = A / C
+                    title_str = "Unterminated Input Impedance (Open Load)"
+
+                R_in = np.real(Z_in)
+                X_in = np.imag(Z_in)
+                
                 center_idx = len(freqs) // 2
-                self.log(f"Z_in at {freqs[center_idx]/1e6:.4f} MHz = {np.abs(Z_in[center_idx]):.2f} Ohms")
+                self.log(f"Z_in at {freqs[center_idx]/1e6:.6f} MHz = {R_in[center_idx]:.1f} {'+' if X_in[center_idx] >= 0 else '-'} j{abs(X_in[center_idx]):.1f} Ohms")
                 
                 plt.figure("Impedance Plot")
                 plt.clf()
-                plt.plot(freqs / 1e6, np.abs(Z_in), color='red')
-                plt.title("Magnitude of Unterminated Input Impedance |Zin|")
+                
+                # Plot Real and Imaginary components separately
+                plt.plot(freqs / 1e6, R_in, color='red', label='Real (Resistance)')
+                plt.plot(freqs / 1e6, X_in, color='blue', label='Imaginary (Reactance)')
+                
+                plt.axhline(0, color='black', linewidth=1, linestyle='--')
+                
+                # Only clamp the Y-axis if it is unterminated (to hide the massive spikes)
+                # If terminated, let matplotlib auto-scale to show the fine passband details
+                if not self.term_enabled.get():
+                    plt.ylim(-2000, 2000) 
+                
+                plt.title(title_str)
                 plt.xlabel("Frequency (MHz)")
                 plt.ylabel("Impedance (Ohms)")
-                plt.yscale('log')
+                plt.legend()
                 plt.grid(True)
                 plt.show()
 
