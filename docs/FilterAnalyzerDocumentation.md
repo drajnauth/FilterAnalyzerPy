@@ -172,6 +172,8 @@ Note that if the analysis has a low carrier attenuation figure, later on you can
 
 Once you have optimized the filter and selecting a termination, enable Term Z and enter the termination impedance. Not this will automatically be populated for you from the prior step. If you wish you can manually change the termination to see the impact of the filter. Once selected, you can execute a full plot.
 
+Also, once you enter the termination impedance, you can enable the **Unterminated Z** option to display the real and imaginary impedance as a function of frequency.  The text output windows, will show the real and imaginary impedance at the center frequency.  This can help with designing a matching network.
+
 ### Step E: Analyzing Carrier Suppression and Audio Fidelity
 
 Single Sideband (SSB) relies on a Beat Frequency Oscillator (BFO) to translate RF signals into audible audio.
