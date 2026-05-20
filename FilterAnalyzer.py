@@ -257,12 +257,47 @@ class CrystalAnalyzerApp:
         self.root.quit()
         self.root.destroy()
 
+    # Updated 20May26 to flag multiple peaks in the filter 
     def print_performance_metrics(self, freqs, gain_db, best_R=None, best_metric=None, check_skirt=False):
         max_gain = np.max(gain_db)
+        
+        # ========================================================
+        # NEW: MULTI-PEAK EXCURSION DETECTOR
+        # ========================================================
+        # 1. Isolate the "top" of the filter (everything within 10dB of the peak)
+        top_indices = np.where(gain_db > max_gain - 10.0)[0]
+        
+        warning_flagged = False
+        if len(top_indices) > 2:
+            top_slice = gain_db[top_indices]
+            
+            # 2. Find Local Maxima (Pixels that are higher than both their left and right neighbors)
+            # We add +1 because the slice shifts the index by 1
+            peaks = np.where((top_slice[1:-1] > top_slice[:-2]) & (top_slice[1:-1] > top_slice[2:]))[0] + 1
+            
+            # 3. If multiple peaks exist, find how deep the valley is between them
+            if len(peaks) > 1:
+                # Find the absolute minimum value between the first peak and the last peak
+                valley_min = np.min(top_slice[peaks[0]:peaks[-1]])
+                excursion = max_gain - valley_min
+                
+                # 4. If the excursion is worse than 3.0 dB, throw a warning
+                if excursion > 3.0:
+                    self.log("\n" + "="*50)
+                    self.log(" ⚠️ WARNING: SEVERE MULTI-PEAKING DETECTED!")
+                    self.log(f"    • {len(peaks)} distinct peaks found in the passband.")
+                    self.log(f"    • Maximum peak-to-valley excursion: {excursion:.1f} dB.")
+                    self.log("    • Filter is unterminated OR crystals are severely unmatched.")
+                    self.log("    • Measurements below may be physically invalid.")
+                    self.log("="*50)
+                    warning_flagged = True
+        # ========================================================
+        
         crossings_3db = np.where(np.diff(np.sign(gain_db - (max_gain - 3.0))))[0]
         
         if len(crossings_3db) < 2:
-            self.log("Could not detect full -3dB bandwidth within sweep limits.")
+            if not warning_flagged:
+                self.log("Could not detect full -3dB bandwidth within sweep limits.")
             return None
 
         f_low = freqs[crossings_3db[0]]
@@ -273,8 +308,15 @@ class CrystalAnalyzerApp:
         self.syn_f0.delete(0, tk.END)
         self.syn_f0.insert(0, f"{center_freq / 1e6:.6f}")
         
-        passband_gains = gain_db[crossings_3db[0]:crossings_3db[-1]]
-        ripple = np.max(passband_gains) - np.min(passband_gains)
+        # Evaluate ripple only on the inner 80% of the passband
+        bw_indices = crossings_3db[-1] - crossings_3db[0]
+        margin = int(bw_indices * 0.10)
+        
+        if margin > 0:
+            flat_top_gains = gain_db[crossings_3db[0] + margin : crossings_3db[-1] - margin]
+            ripple = np.max(flat_top_gains) - np.min(flat_top_gains)
+        else:
+            ripple = 0.0
 
         offset = self.get_float(self.bfo_offset, "BFO Offset")
         
@@ -432,8 +474,16 @@ class CrystalAnalyzerApp:
                     if len(crossings_3db) < 2: continue 
                         
                     idx_low, idx_high = crossings_3db[0], crossings_3db[-1]
-                    passband_gains = gain_db[idx_low:idx_high]
-                    ripple = np.max(passband_gains) - np.min(passband_gains)
+                    
+                    # Evaluate ripple only on the inner 80% of the passband
+                    bw_indices = idx_high - idx_low
+                    margin = int(bw_indices * 0.10)
+                    
+                    if margin > 0:
+                        flat_top_gains = gain_db[idx_low + margin : idx_high - margin]
+                        ripple = np.max(flat_top_gains) - np.min(flat_top_gains)
+                    else:
+                        ripple = 0.0
                     
                     if check_rip and ripple > limit_rip: continue
                         
