@@ -1,12 +1,13 @@
 @echo off
-REM 1. Activate the virtual environment
-REM Replace 'venv' with your actual environment folder name
+REM Activate the virtual environment
+REM CALL is used in a batch file
 CALL .venv\Scripts\activate.bat
 
-REM 2. Run your Python program
+REM Run your Python program
 python FilterAnalyzer.py
 
-REM 3. Deactivate the environment
+REM Deactivate the environment
+REM CALL is used in a batch file
 CALL deactivate
 
 pause

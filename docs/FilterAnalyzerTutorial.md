@@ -13,11 +13,10 @@ In this tutorial we will:
 6. Option 3: Use the Optimize Z to arrive at a suitable termination
 7. Look at adjusting the BFO to get the optimum carrier suppression and audio passband attenuation
 
+## Step 1: Enter Filter Parameters
+As the first step you would enter the crystal motional parameters you identified for your matched set of crystals.  However, for this tutorial we will open and use an exiting profile that only has crystal motional parameters and coupling capacitors stored.
 
-## Step 1: Enter Filter Parameter
-As the first step you would enter the crystal motional parameters you identifed for your matched set of crystals.  However, for this tutorial we will open and use an exiting profile that only have crystal motional parameters.
-
-Use File->Open Profile and select **`sample-filter.json`** file.   Once open, crystal motional parameters as well as standard coupling capacitors will be entered.  Start with these capacitor values.
+Use File->Open Profile and select **`sample-filter.json`** file.   Once open, crystal motional parameters as well as standard coupling capacitors will be entered for a 12 MHz crystal filter.  Start with these capacitor values.
 
 ## Step 2: View Filter Bode Plot
 1. The next step will be to view the unterminate filter to see how it looks open circuit.  However, you will need to enter the start and end frequencies to sweep the filter.  In this case, we know the filter's center frequency is around 12 MHz, lets sweep between 11 MHz and 13 MHz.  Ensure **Bode Plot** and **Full Plot** are enabled and **Enable Term Z** is disabled.
@@ -28,6 +27,7 @@ Use File->Open Profile and select **`sample-filter.json`** file.   Once open, cr
 	**Solution**: The start frequency should be around **11.991 MHz** and end frequency should be around **12.00 MHz**
 4. Note that the filter has huge humps.  Why?
 5. Note the warning in the text display window about multiple peaks found.  Also note the peak-to-valley excursion measurement.
+6. In light of the large peaks, pay attention to the center frequency indicated on the plot and the text output window.  Is it correct?
 
 ### Why are there large peaks? 
 
@@ -38,47 +38,48 @@ A 4-crystal ladder filter is a **4-pole system**. Mathematically, this means it 
 While mismatched crystals will make the passband asymmetrical or lopsided, the existence of those **deep ripples is purely a function of improper termination impedance**.
 
 ## Step 3: Plot Unterminate Impedance
-Using the optimum sweep frequencies above, do a impedance plot.  Enable the **Unterminated Z** plot and click the **Calculate** button.    This gives you the real and imaginary impedance of the filter which can be used to visualize resonance points of the filter (i.e. resonance points for the crystals)
+Using the optimum sweep frequencies above, do a impedance plot.  Enable the **Term Impedance** plot and click the **Calculate** button.    This gives you the real and imaginary termination impedance of the filter which can be used to visualize resonance points of the filter (i.e. resonance points for the crystals)
 
-1. Points where the imaginary impedance is 0 is point of resonance and the impedance of the filter is purly real. 
+1. Points where the imaginary impedance is 0 is a point of resonance (possibly for each crystal) and the impedance of the filter is purly real. 
 2. Is there a saddle between peaks?  If so, then the impedance in the saddle, where imaginary impedance is 0, is related to the motional resistance of the crystals.  The actual filter termination impedance is somewhere in that saddle. 
 	**Note**: Look at the text output windows, note the frequency and real and imaginary impedance.  
-3. Once you have figured out the proper termination impedance (in subsequent step in this tutorial), you can enter that impedance in the **Z Term Real** and re-run this plot to see the real and imaginary impedance as a function of frequency.  The text output window displays the real and imaginary impedance at the center frequency.  This can help to design a matching network.
+3. Once you have figured out the proper termination impedance (in a subsequent step in this tutorial), you can enter that impedance in the **Z Term Real** and re-run this plot to see the real and imaginary impedance as a function of frequency.  The text output window displays the real and imaginary impedance at the center frequency.  This can help to design a matching network.
 
 ## Step 4: Experiment with Values
-Using the sweep frequencies, let change a few parameter to see the impact on the filter.  
-**Note**: At any point you can reload the default values if you can recall what was initially loaded.
+Using the sweep frequencies, lets change a few parameter to see the impact on the filter.  
+**Note**: At any point you can reload the default values if you can't recall what was initially loaded.
 
 1. Change **C1** and **C2** values and plot the graph. Try 1/2 of the values (i.e. 100 pf) and double the values (400 pf).  What happens to the center frequency, bandwidth and insertion loss?
 2. Change **C3**, **C4** and **C5**.  What happens?
 3. Enable the **Enable Term Z**.  Enter a small Z (e.g. 50), enter a moderate Z (e.g. 200), enter a large Z (e.g. 600) in the  **Z Term Real** input.  What happens to the filter's bandwidth, ripple and insertion loss? Does the center frequency change?
 	- Try changes the Z values (i.e. Iteratively guess at the termination) to minimize the ripple in the passband.  Pay attention to the insertion loss and bandwidth.
+	- How does center frequency compare for the filter terminated to filter unterminated?
 4. Disable the **Enable Term Z** for the next step.
-
 
 ## Step 5: Dishal/Hayward Optimization
 Here we will use the **Dishal/Hayward Synthesis** to determine the optimum coupling capacitor values.
 1. By doing Step 3 (i.e. a bode plot), the center frequency will be populated in the **Target Frequency** input. If you need to have it at another center frequency you can enter it here.  Leave it as is.
+   **NOTE: DO NOT USE** the center frequency that the program provides for an unterminated sweep!!  
 2. Enter the required bandwidth for the system.  Select 2500 Hz
-3. Click the **Synthesize Caps** button. No plot will be displayed.  Note the capacitor values changes and a termination impedance was entered.
+3. Click the **Synthesize Caps** button. No plot will be displayed.  Note the capacitor values changes and a termination impedance is entered.
 4. Note this termination impedance. **Write it down!**
-5. Generate a bode plot with the new capacitor values and the termination Z.  How does the filter look?  What is the center frequency, bandwidth, ripple and insertion loss?
+5. Generate a bode plot with the new capacitor values and the termination Z.  How does the filter look?  What is the center frequency, bandwidth, ripple and insertion loss?  
 
 
 ## Step 6: Impedance Termination Optimization
 Here we will use the **Optimize Term Z**  to try and get a better termination impedance that will produce a better filter.
 
-1. Enable the **Optimize Term Z**.  Ensure that all optimization constraints in Selectable Constraints (For Z Opt) is enabled.  These are **Max IL** (insertion loss), **Max Ripple** and carrier suppression (aka **Skirt Target**)
-	**Note**: The values here are **POSITIVE** even through its a loss or attenuation
+1. Enable the **Optimize Term Z**.  Ensure that all optimization constraints in Selectable Constraints (For Z Opt) is enabled.  These are **Max IL** (insertion loss), **Max Ripple** and **Carrier Supp** (aka Carrier Suppression)
+	**Note**: The values here are **POSITIVE** even through IL and Suppression is a loss or attenuation
 2. Click the **Calculate** button
 3. The program will indicate that it failed to find a termination that will fulfil the the conditions for insertion loss, Maximum ripple and carrier suppression (Skirt Target) that you entered.  
-4. Lets, try to minimze ripple.  Deselect all constraints except **Max ripple**.  Enter 1 dB and see if the program can find a termination for 1dB.  Select 2 and try. Rinse and repeat for 3, 4, 5, 6.  What happens? What is the best ripple figure you can get? What is the optimum termination to get the best ripple figure?
-5. Repeat for **Max IL** and **Skirt Target**.  Pay attention to insertion loss, bandwidth and ripple. What seems to be the best termination.
+4. Lets, try to minimze ripple.  Deselect all constraints except **Max ripple**.  Enter 1 dB and see if the program can find a termination for 1dB.  Select 2 dB and try. Rinse and repeat for 3, 4, 5, 6 dB.  What happens? What is the best ripple figure you can get? What is the optimum termination to get the best ripple figure?
+5. Repeat for **Max IL** and **Carrier Supp**.  Pay attention to insertion loss, bandwidth and ripple. What seems to be the best termination?
 6. Compare this termination to the Dishal/Hayward Termination you wrote down previously.  Plot both to determine which is better.  Which has better ripple, insertion loss and bandwidth?  Which has sharper skirts?  Which would you use to terminate your filter?
 
 
 ## Step 7: Optimize the BFO Frequency
-Here we will use the **BFO Offset**  with the optimum **Z Term Real** (from above) to try and get a acceptable carrier supression and audio passband attenuation.  First, you need to understand how SSB is generated.
+Here we will use the **BFO Offset**  with the optimum **Z Term Real** (from above) to try and get a acceptable carrier suppression and audio passband attenuation.  First, you need to understand how SSB is generated.
 
 #### BFO Background
 
@@ -86,7 +87,7 @@ This discussion is primary for the transmission of SSB.  For reception of SSB, t
 
 You will notice the Full Plot displays USB BFO, LSB BFO as well as 600 Hz and 2400 Hz lines.  For the human ear, 600 Hz is about the lower limit and 2400 Hz is the upper limit (for SSB at least).  This is showing you where these audio frequencies (in the Sidebands) would site on the filter skirts.  
 
-When  **BFO Offset**  is 0, you are telling the program to place the Beat Frequency Oscillator _exactly_ on the -3dB edge of the filter.  This is where the BFO Frequency would typically be on **receive**.  On, receive your parts of your audio may be lowered by 3 dB which your ear cannot tell.  
+When  **BFO Offset**  is 0, you are telling the program to place the Beat Frequency Oscillator _exactly_ on the -3dB edge of the filter.  This is where the BFO Frequency would typically be on **receive**.  Why? The audio will suffer at most 3dB attenuation which your ear probably would not detect.  
 
 On transmit, your BFO Frequency needs to be shifted so that the carrier is attenuated by the filter skirt.  You can use the **BFO Offset** to identify the optimum BFO Frequency. 
 
