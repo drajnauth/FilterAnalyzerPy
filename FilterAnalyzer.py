@@ -131,7 +131,7 @@ class CrystalAnalyzerApp:
         row1_container = ttk.Frame(self.root)
         row1_container.grid(row=1, column=0, sticky="ew", padx=10, pady=5)
 
-        opt_frame = ttk.LabelFrame(row1_container, text="Selectable Constraints (For Z Opt)", padding=10)
+        opt_frame = ttk.LabelFrame(row1_container, text="Z Optimization Constraints", padding=10)
         opt_frame.pack(side="left", fill="y", padx=(0, 10))
         
         self.en_il = tk.BooleanVar(value=True)
@@ -148,7 +148,7 @@ class CrystalAnalyzerApp:
 
         self.en_skirt = tk.BooleanVar(value=True)
         ttk.Checkbutton(opt_frame, variable=self.en_skirt).grid(row=2, column=0)
-        ttk.Label(opt_frame, text="Skirt Target (dB down):").grid(row=2, column=1, sticky="e")
+        ttk.Label(opt_frame, text="Carrier Supp (dB):").grid(row=2, column=1, sticky="e")
         self.opt_skirt = ttk.Entry(opt_frame, width=8)
         self.opt_skirt.grid(row=2, column=2, padx=5, pady=2)
 
@@ -182,8 +182,8 @@ class CrystalAnalyzerApp:
 
         self.calc_mode = tk.StringVar(value="bode")
         ttk.Radiobutton(ctrl_frame, text="Bode Plot |dB|", variable=self.calc_mode, value="bode").grid(row=0, column=2, padx=15, sticky="w")
-        ttk.Radiobutton(ctrl_frame, text="Unterminated Z", variable=self.calc_mode, value="z_unterm").grid(row=1, column=2, padx=15, sticky="w")
-        ttk.Radiobutton(ctrl_frame, text="Optimize Term Z", variable=self.calc_mode, value="z_opt").grid(row=2, column=2, padx=15, sticky="w")
+        ttk.Radiobutton(ctrl_frame, text="Term Impedance (r+j)", variable=self.calc_mode, value="z_unterm").grid(row=1, column=2, padx=15, sticky="w")
+        ttk.Radiobutton(ctrl_frame, text="Optimize Term Impedance", variable=self.calc_mode, value="z_opt").grid(row=2, column=2, padx=15, sticky="w")
 
         self.term_enabled = tk.BooleanVar(value=False)
         ttk.Checkbutton(ctrl_frame, text="Enable Term Z", variable=self.term_enabled).grid(row=0, column=3, padx=15, sticky="w")
@@ -234,12 +234,12 @@ class CrystalAnalyzerApp:
         
         reset_entry(self.opt_il, "10.0")
         reset_entry(self.opt_rip, "3.0")
-        reset_entry(self.opt_skirt, "40.0")
+        reset_entry(self.opt_skirt, "20.0")
         
-        reset_entry(self.syn_f0, "4.915")
-        reset_entry(self.syn_bw, "2500")
+        reset_entry(self.syn_f0, "0")
+        reset_entry(self.syn_bw, "0")
         
-        reset_entry(self.bfo_offset, "600")
+        reset_entry(self.bfo_offset, "0")
 
         self.text_out.delete(1.0, tk.END)
         self.log("Ready. Workspace reset to default values.")
